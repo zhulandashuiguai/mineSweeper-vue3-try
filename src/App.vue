@@ -1,18 +1,20 @@
 <script setup lang="ts">
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from './components/HelloWorld.vue'
-import { useStore } from './store/index.js'
-import { storeToRefs } from 'pinia'
-const store = useStore();
-console.log(store);
+
+import index from './pages/index.vue'
 
 </script>
 
 <template>
-<h1>hello</h1>
-<h2>{{ store.name }}</h2>
+<div class="main">
+<index></index>
+</div>
 </template>
 
 <style scoped>
+/* .main {
+  display: flex;
+  justify-content: center;
+} */
 </style>
