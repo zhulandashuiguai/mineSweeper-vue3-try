@@ -93,11 +93,12 @@ function getSiblings(block: BlockState) {
 // })
 //格子炸弹和普通格子的样式
 function getGridClass(item: BlockState) {
+  // 如果没有翻开
   if (!item.revealed) {
     return {
       backgroundColor: 'rgba(107,114,128,0.1)'
     }
-  } else {
+  } else {//翻开之后 是雷还是数字
     if (item.mine) {
       return {
         backgroundColor: 'rgba(250, 108, 108, 0.653)'
@@ -109,6 +110,14 @@ function getGridClass(item: BlockState) {
     }
   }
 }
+function hoverClass(item: BlockState) {
+  if (item.flag) return
+  if (!item.revealed) {
+    return {
+      hoverClass: true
+    }
+  }
+}
 
 //开发环境
 let dev = true
@@ -117,17 +126,16 @@ let mineGenerate = false
 
 //点击事件
 function onClick(item: BlockState) {
-  console.log(item);
+  if (item.flag) return
+  // console.log(item);
   if (!mineGenerate) {
     // 生成炸弹
     generateMines(item)
     mineGenerate = true
   }
-
   expendZero(item)
   item.revealed = true
   // console.log(getSiblings(item));
-
 }
 
 //初始点击时，如果是0，展开0和附近的东西，
@@ -144,21 +152,29 @@ function expendZero(block: BlockState) {
   })
 }
 
+function rightClick(item: BlockState) {
+  if (item.revealed) return
+  item.flag = !item.flag
+}
 
 </script>
 <template>
   <div>
     <h2>扫雷</h2>
     <div class="horizon" v-for="(row, y) in state" :key="y">
-        <div class="grid" v-for="(item, x) in row" :key="x" :style="getGridClass(item)"  @click="onClick(item)">
-          <template v-if="item.revealed || dev" >
+          <div  v-for="(item, x) in row" :key="x" :class="hoverClass(item)">
+            <div class="grid" :style="getGridClass(item)"  @click="onClick(item)"  @contextmenu.prevent="rightClick(item)">
+          <template v-if="item.revealed" >
             <div v-if="item.mine" class="iconfont icon-baozha"></div>
             <div v-else>{{ item.adjacentMines }}</div>
           </template>
+          <template v-else>
+            <div v-if="item.flag" class="iconfont icon-qizi flag"></div>
+          </template>
         </div> 
+          </div>
     </div>
   </div>
-
 </template>
 <style scoped lang="less">
 .grid {
@@ -171,9 +187,10 @@ function expendZero(block: BlockState) {
   font-weight: 800;
   margin: 1px;
 
-  &:hover {
-    background-color: rgba(212, 215, 215, 0.2);
-  }
+  // &:hover {
+  //   background-color: rgba(212, 215, 215, 0.1);
+  //   // background-color: red;
+  // }
 }
 
 .horizon {
@@ -182,11 +199,21 @@ function expendZero(block: BlockState) {
 }
 
 .isMine {
-  background-color: rgba(250, 108, 108, 0.5);
+  background-color: rgba(250, 129, 129, 0.5);
 }
 
 .icon-baozha {
   font-size: 35px;
+  color: rgba(136, 120, 115, 0.895);
+}
 
+.flag {
+  // background-color: transparent;
+  font-size: 25px;
+  color: lightsalmon;
+}
+
+.hoverClass:hover {
+  background-color: rgba(212, 215, 215, 0.6);
 }
 </style>
