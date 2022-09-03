@@ -1,22 +1,10 @@
 <script setup lang="ts">
-// 地雷状态
-interface BlockState {
-  x?: number,
-  y?: number,
-  // 是否翻开
-  revealed: boolean,
-  //是不是炸弹
-  mine?: boolean,
-  //旗子
-  flag?: boolean,
-  //附近的雷的个数
-  adjacentMines: number
-}
+import { BlockState } from '@/types'
 // 地雷盘的大小
-const HEIGHT = 10;
-const WIDTH = 10;
+const HEIGHT = 5;
+const WIDTH = 5;
 //格子状态
-const state = reactive(
+let state = ref(
   Array.from({ length: HEIGHT }, (_, y) =>
     Array.from({ length: WIDTH }, (_, x): BlockState => ({ x, y, adjacentMines: 0, revealed: false })
     )))
@@ -43,7 +31,7 @@ const numberColors = [
 // 生成炸弹
 // 要对第一次点击的格子进行判断
 function generateMines(initalItem: BlockState) {
-  for (let row of state) {
+  for (let row of state.value) {
     for (let block of row) {
       //让第一次点击时周围不出现炸弹
       if (Math.abs(initalItem.x - block.x) <= 1)
@@ -60,7 +48,7 @@ function generateMines(initalItem: BlockState) {
 
 // 计算每个格子周围的炸弹
 function updateNumbers() {
-  state.forEach((row, y) => {
+  state.value.forEach((row, y) => {
     row.forEach((block, x) => {
       // 是炸弹就return
       if (block.mine) return
@@ -82,7 +70,7 @@ function getSiblings(block: BlockState) {
     const y2 = block.y + dy
     if (x2 < 0 || x2 >= WIDTH || y2 >= HEIGHT || y2 < 0) return undefined
     // if (state[y2][x2].mine) { block.adjacentMines += 1 }
-    return state[y2][x2]
+    return state.value[y2][x2]
   }).filter(Boolean)
 }
 
@@ -136,6 +124,7 @@ function onClick(item: BlockState) {
   expendZero(item)
   item.revealed = true
   // console.log(getSiblings(item));
+  // checkGameState()
 }
 
 //初始点击时，如果是0，展开0和附近的东西，
@@ -151,12 +140,27 @@ function expendZero(block: BlockState) {
     }
   })
 }
-
+// 鼠标右键事件
 function rightClick(item: BlockState) {
-  if (item.revealed) return
+  if (item.revealed || !mineGenerate) return
   item.flag = !item.flag
+  // checkGameState()
 }
 
+// 检测游戏状态
+function checkGameState() {
+  if (!mineGenerate) return
+  let blocks = state.value.flat()
+  // 胜利条件：遍历所有的方格，统计被点开的方格数量+用户确认雷的数量等于所有方格的数量那么就认为玩家获胜了。
+  let revealedAll = 0
+  let flagedAll = 0
+  blocks.forEach(x => {
+    if (x.revealed) revealedAll++
+    if (x.flag) flagedAll++
+  })
+  if (revealedAll + flagedAll == blocks.length) { setTimeout(() => { alert('you win') }, 50) }
+}
+watch(state, () => { checkGameState() }, { deep: true })
 </script>
 <template>
   <div>
