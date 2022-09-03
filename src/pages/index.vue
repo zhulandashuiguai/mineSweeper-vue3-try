@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { BlockState } from '@/types'
+import { isDev, toggleDev } from '@/composables/index'
+import MineBlock from '@/components/MineBlock.vue'
 // 地雷盘的大小
 const HEIGHT = 5;
 const WIDTH = 5;
@@ -14,15 +16,6 @@ const directions = [
   [-1, -1], [0, -1], [1, -1],
   [-1, 0], [1, 0],
   [1, 1], [0, 1], [-1, 1]
-]
-// 数字颜色
-const numberColors = [
-  'transparent',
-  'green',
-  'yellow',
-  'red',
-  'skyblue',
-  'pink'
 ]
 
 
@@ -74,44 +67,14 @@ function getSiblings(block: BlockState) {
   }).filter(Boolean)
 }
 
-// let getMineClass = computed((item) => {
-//   if (item.mine) {
-//     return { isMine: true }
-//   }
-// })
-//格子炸弹和普通格子的样式
-function getGridClass(item: BlockState) {
-  // 如果没有翻开
-  if (!item.revealed) {
-    return {
-      backgroundColor: 'rgba(107,114,128,0.1)'
-    }
-  } else {//翻开之后 是雷还是数字
-    if (item.mine) {
-      return {
-        backgroundColor: 'rgba(250, 108, 108, 0.653)'
-      }
-    } else {
-      return {
-        color: numberColors[item.adjacentMines]
-      }
-    }
-  }
-}
-function hoverClass(item: BlockState) {
-  if (item.flag) return
-  if (!item.revealed) {
-    return {
-      hoverClass: true
-    }
-  }
-}
 
 //开发环境
-let dev = true
+
 
 let mineGenerate = false
 
+// 输了还是赢了
+let isLose = ref(false)
 //点击事件
 function onClick(item: BlockState) {
   if (item.flag) return
@@ -125,6 +88,10 @@ function onClick(item: BlockState) {
   item.revealed = true
   // console.log(getSiblings(item));
   // checkGameState()
+  if (item.mine) {
+    isLose.value = true;
+    alert('you lost!')
+  }
 }
 
 //初始点击时，如果是0，展开0和附近的东西，
@@ -158,66 +125,27 @@ function checkGameState() {
     if (x.revealed) revealedAll++
     if (x.flag) flagedAll++
   })
+  if (isLose.value) return
   if (revealedAll + flagedAll == blocks.length) { setTimeout(() => { alert('you win') }, 50) }
 }
 watch(state, () => { checkGameState() }, { deep: true })
+
 </script>
 <template>
-  <div>
-    <h2>扫雷</h2>
+  <div> 
+    <h2>扫雷</h2> <button @click="toggleDev()">{{ isDev }}</button>
     <div class="horizon" v-for="(row, y) in state" :key="y">
-          <div  v-for="(item, x) in row" :key="x" :class="hoverClass(item)">
-            <div class="grid" :style="getGridClass(item)"  @click="onClick(item)"  @contextmenu.prevent="rightClick(item)">
-          <template v-if="item.revealed" >
-            <div v-if="item.mine" class="iconfont icon-baozha"></div>
-            <div v-else>{{ item.adjacentMines }}</div>
-          </template>
-          <template v-else>
-            <div v-if="item.flag" class="iconfont icon-qizi flag"></div>
-          </template>
-        </div> 
-          </div>
-    </div>
+          <MineBlock v-for="(block, x) in row" :key="x" 
+          :block="block"  
+          @click="onClick(block)"  
+          @contextmenu.prevent="rightClick(block)"
+          ></MineBlock>
+        </div>
   </div>
 </template>
 <style scoped lang="less">
-.grid {
-  width: 40px;
-  height: 40px;
-  border: 1px solid rgba(162, 165, 165, 0.347);
-  text-align: center;
-  line-height: 40px;
-  font-size: 18px;
-  font-weight: 800;
-  margin: 1px;
-
-  // &:hover {
-  //   background-color: rgba(212, 215, 215, 0.1);
-  //   // background-color: red;
-  // }
-}
-
 .horizon {
   display: flex;
 
-}
-
-.isMine {
-  background-color: rgba(250, 129, 129, 0.5);
-}
-
-.icon-baozha {
-  font-size: 35px;
-  color: rgba(136, 120, 115, 0.895);
-}
-
-.flag {
-  // background-color: transparent;
-  font-size: 25px;
-  color: lightsalmon;
-}
-
-.hoverClass:hover {
-  background-color: rgba(212, 215, 215, 0.6);
 }
 </style>
