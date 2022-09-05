@@ -4,19 +4,18 @@ import MineBlock from '@/components/MineBlock.vue'
 import { GamePlay } from '@/composables/logic'
 import { useStorage } from '@vueuse/core'
 
-let play = new GamePlay(10, 10)
+let play = new GamePlay(9, 9, 10)
+//持久化
 useStorage('gameState', play.state)
 const state = computed(() => play.blockBoard)
-
-watch(play.state.value.blockBoard, () => {
+watchEffect(() => {
   play.checkGameState()
-}, {
-  deep: true
 })
 </script>
 <template>
   <div> 
     <h2>扫雷</h2> 
+    <div>炸弹个数：{{ play.mines }}</div>
     <!-- <div>{{ gameState }}</div> -->
     <button @click="toggleDev()">{{ isDev }}</button>
     <button @click="play.reset()">reset</button>
@@ -27,7 +26,7 @@ watch(play.state.value.blockBoard, () => {
           @contextmenu.prevent="play.rightClick(block)"
           ></MineBlock>
         </div>
-  </div>
+  </div>  
 </template>
 <style scoped lang="less">
 .horizon {

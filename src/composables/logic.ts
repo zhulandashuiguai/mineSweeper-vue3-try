@@ -13,7 +13,7 @@ interface GameState {
   blockBoard: BlockState[][],
   // 是否生成炸弹
   mineGenerate: boolean,
-  //
+  //输了还是赢了
   gameState: 'play' | 'win' | 'lose'
 }
 
@@ -21,12 +21,12 @@ interface GameState {
 export class GamePlay {
   //游戏状态
   state = ref() as Ref<GameState>
-  constructor(public width: number, public height: number) {
-    // watch(state, () => { checkGameState() }, { deep: true })
+  constructor(public width: number, public height: number, public mines: number) {
     this.reset()
     // 地雷盘的大小
-    this.width = width
-    this.height = height
+    // this.width = width
+    // this.height = height
+    // this.mines = mines
   }
   // 重置游戏
   reset() {
@@ -41,19 +41,36 @@ export class GamePlay {
     return this.state.value.blockBoard
   }
 
+  // 定义随机数用于生成炸弹
+  random(min: number, max: number) {
+    return Math.random() * (max - min) + min
+  }
+  randomInt(min: number, max: number) {
+    return Math.round(this.random(min, max))
+  }
+
   // 生成炸弹
   // 要对第一次点击的格子进行判断
   generateMines(state: BlockState[][], initalItem: BlockState) {
-    for (let row of state) {
-      for (let block of row) {
-        //让第一次点击时周围不出现炸弹
-        if (Math.abs(initalItem.x - block.x) <= 1)
-          continue
-        if (Math.abs(initalItem.y - block.y) <= 1)
-          continue
-        block.mine = Math.random() < 0.3
-      }
+    const placeRandom = () => {
+      const x = this.randomInt(0, this.width - 1)
+      const y = this.randomInt(0, this.height - 1)
+      const block = state[y][x]
+      if (Math.abs(initalItem.x - block.x) <= 1)
+        return false
+      if (Math.abs(initalItem.y - block.y) <= 1)
+        return false
+      if (block.mine == true)
+        return false
+      block.mine = true
+      return true
     }
+
+    Array.from({ length: this.mines }, () => null).forEach(() => {
+      while (placeRandom() == false) {
+        // placeRandom()
+      }
+    })
     //检测格子周围炸弹数
     this.updateNumbers()
   }
@@ -88,9 +105,6 @@ export class GamePlay {
 
 
   //开发环境
-
-
-
 
   //点击事件
   onClick(item: BlockState) {
@@ -157,7 +171,6 @@ export class GamePlay {
       if (x.revealed) revealedNum++
     })
     if (this.state.value.gameState == 'lose') return
-
     if (revealedAll + flagedAll == blocks.length || revealedNum + mineNum == blocks.length) {
       this.state.value.gameState = 'win'
       setTimeout(() => { alert('you win') }, 50)
