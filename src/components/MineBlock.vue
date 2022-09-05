@@ -63,11 +63,15 @@ function getGridClass(item: BlockState) {
 }
 
 .grid {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   min-width: 32px;
   min-height: 32px;
   border: 1px solid rgba(162, 165, 165, 0.347);
   text-align: center;
-  line-height: 32px;
+  /* line-height: 32px; */
+
   font-size: 16px;
   font-weight: 700;
   margin: 1px;
@@ -84,7 +88,7 @@ function getGridClass(item: BlockState) {
 }
 
 .icon-baozha {
-  font-size: 30px;
+  font-size: 25px;
   color: rgba(136, 120, 115, 0.895);
 }
 </style>

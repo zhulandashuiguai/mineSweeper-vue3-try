@@ -1,26 +1,45 @@
 <script setup lang="ts">
-import { isDev, toggleDev } from '@/composables/index'
 import MineBlock from '@/components/MineBlock.vue'
 import { GamePlay } from '@/composables/logic'
-import { useStorage } from '@vueuse/core'
+import { useNow, useStorage } from '@vueuse/core'
 import confetti from '@/components/confetti.vue'
-let play = new GamePlay(9, 9, 1)
+let play = new GamePlay(9, 9, 10)
 //持久化
 useStorage('gameState', play.state)
 const state = computed(() => play.blockBoard)
 watchEffect(() => {
   play.checkGameState()
 })
+
+let now = useNow()
+let time = computed(() => {
+  return ((+now.value - +play.state.value.startTime) / 1000).toFixed(0)
+})
+
+let mineRest = computed(() => {
+  if (!play.state.value.mineGenerate) { return play.mines }
+  let mineCount = play.blockBoard.flat().reduce((a, b) => a + (b.mine ? 1 : 0) - (b.flag ? 1 : 0), 0)
+  return mineCount
+})
+
+
+
 </script>
 <template>
+  <h3>扫雷</h3> 
   <div> 
-   <div class="title">
-     <h2>扫雷</h2> 
-    <div>炸弹个数：{{ play.mines }}</div>
-    <!-- <div>{{ gameState }}</div> -->
-    <button @click="toggleDev()">{{ isDev }}</button>
-    <button @click="play.reset()">reset</button>
-   </div>
+    
+  <div class="btn">
+    <!-- <button class="btn-dev btn-in" @click="toggleDev()">{{ isDev }}</button> -->
+    <button class="btn-new btn-in" @click="play.reset()">新游戏</button>
+    <button class="btn-in" @click="play.reset(9, 9, 10)">简单</button>
+    <button class="btn-in" @click="play.reset(16, 16, 40)">中等</button>
+    <button class="btn-in" @click="play.reset(30, 16, 99)">较难</button>
+  </div>
+  <div class="middle">
+    <div class="mid"><div class="iconfont icon-line_jishiqi"></div> &nbsp;{{ time }}</div>
+    <div class="mid"><div class="iconfont icon-baozha"></div>&nbsp;{{ mineRest }}</div>
+  </div>
     <div class="horizon" v-for="(row, y) in state" :key="y">
           <MineBlock v-for="(block, x) in row" :key="x" 
           :block="block"  
@@ -34,6 +53,37 @@ watchEffect(() => {
 <style scoped lang="less">
 .horizon {
   display: flex;
-  overflow: auto;
+  justify-content: center;
+}
+
+.btn {
+  margin: 18px;
+
+  .btn-in {
+    margin: 0 3px;
+  }
+}
+
+.middle {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.mid {
+  margin: 0 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.icon-line_jishiqi {
+  font-size: 25px;
+  // padding-top: 5px;
+}
+
+.icon-baozha {
+  font-size: 30px;
 }
 </style>

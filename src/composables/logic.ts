@@ -14,7 +14,12 @@ interface GameState {
   // 是否生成炸弹
   mineGenerate: boolean,
   //输了还是赢了
-  gameState: 'play' | 'win' | 'lose'
+  gameState: 'play' | 'win' | 'lose',
+  //炸弹数量
+  mines: number,
+  //时间
+  startTime: number
+
 }
 
 
@@ -22,20 +27,25 @@ export class GamePlay {
   //游戏状态
   state = ref() as Ref<GameState>
   constructor(public width: number, public height: number, public mines: number) {
-    this.reset()
+    this.reset(width, height, mines)
     // 地雷盘的大小
     // this.width = width
     // this.height = height
     // this.mines = mines
   }
   // 重置游戏
-  reset() {
-    this.state.value = {
-      gameState: 'play',
-      mineGenerate: false,
-      blockBoard: Array.from({ length: this.height }, (_, y) =>
-        Array.from({ length: this.width }, (_, x): BlockState => ({ x, y, adjacentMines: 0, revealed: false })))
-    }
+  reset(width = this.width, height = this.height, mines = this.mines) {
+    this.width = width,
+      this.height = height,
+      this.mines = mines,
+      this.state.value = {
+        gameState: 'play',
+        mineGenerate: false,
+        blockBoard: Array.from({ length: this.height }, (_, y) =>
+          Array.from({ length: this.width }, (_, x): BlockState => ({ x, y, adjacentMines: 0, revealed: false }))),
+        mines: this.mines,
+        startTime: Date.now()
+      }
   }
   get blockBoard() {
     return this.state.value.blockBoard
@@ -56,9 +66,7 @@ export class GamePlay {
       const x = this.randomInt(0, this.width - 1)
       const y = this.randomInt(0, this.height - 1)
       const block = state[y][x]
-      if (Math.abs(initalItem.x - block.x) <= 1)
-        return false
-      if (Math.abs(initalItem.y - block.y) <= 1)
+      if (Math.abs(initalItem.x - block.x) <= 1 && Math.abs(initalItem.y - block.y) <= 1)
         return false
       if (block.mine == true)
         return false
@@ -143,6 +151,11 @@ export class GamePlay {
   }
   // 鼠标右键事件
   rightClick(item: BlockState) {
+    let flagCount = this.blockBoard.flat().reduce((a, b) => a + (b.flag ? 1 : 0), 0)
+    if (flagCount == this.mines) {
+      // 点到的不是旗子
+      if (!item.flag) return
+    }
     if (this.state.value.gameState !== 'play') return
     if (item.revealed || !this.state.value.mineGenerate) return
     item.flag = !item.flag
