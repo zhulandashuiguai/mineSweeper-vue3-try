@@ -43,8 +43,6 @@ function getGridClass(item: BlockState) {
 }
 </script>
 
-
-
 <template>
   <div :class="hoverClass(block)">
             <div class="grid" :style="getGridClass(block)" >
@@ -65,19 +63,19 @@ function getGridClass(item: BlockState) {
 }
 
 .grid {
-  width: 40px;
-  height: 40px;
+  min-width: 32px;
+  min-height: 32px;
   border: 1px solid rgba(162, 165, 165, 0.347);
   text-align: center;
-  line-height: 40px;
-  font-size: 18px;
-  font-weight: 800;
+  line-height: 32px;
+  font-size: 16px;
+  font-weight: 700;
   margin: 1px;
 }
 
 .flag {
   /* // background-color: transparent; */
-  font-size: 25px;
+  font-size: 20px;
   color: lightsalmon;
 }
 
@@ -86,7 +84,7 @@ function getGridClass(item: BlockState) {
 }
 
 .icon-baozha {
-  font-size: 35px;
+  font-size: 30px;
   color: rgba(136, 120, 115, 0.895);
 }
 </style>

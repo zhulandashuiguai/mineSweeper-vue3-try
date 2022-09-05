@@ -173,7 +173,7 @@ export class GamePlay {
     if (this.state.value.gameState == 'lose') return
     if (revealedAll + flagedAll == blocks.length || revealedNum + mineNum == blocks.length) {
       this.state.value.gameState = 'win'
-      setTimeout(() => { alert('you win') }, 50)
+      setTimeout(() => { alert('you win') }, 800)
     }
   }
 }
