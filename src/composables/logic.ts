@@ -18,7 +18,9 @@ interface GameState {
   //炸弹数量
   mines: number,
   //时间
-  startTime: number
+  startTime: number,
+  // 结束时间
+  endTime?: number
 
 }
 
@@ -129,9 +131,7 @@ export class GamePlay {
     // console.log(getSiblings(item));
     // checkGameState()
     if (item.mine) {
-      this.state.value.gameState = 'lose'
-      this.showAllMines()
-      alert('you lost!')
+      this.gameOver()
     }
 
   }
@@ -188,5 +188,11 @@ export class GamePlay {
       this.state.value.gameState = 'win'
       setTimeout(() => { alert('you win') }, 800)
     }
+  }
+  gameOver() {
+    this.state.value.endTime = Date.now()
+    this.state.value.gameState = 'lose'
+    this.showAllMines()
+    alert('you lost!')
   }
 }

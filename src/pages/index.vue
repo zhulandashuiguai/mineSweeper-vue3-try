@@ -13,7 +13,7 @@ watchEffect(() => {
 
 let now = useNow()
 let time = computed(() => {
-  return ((+now.value - +play.state.value.startTime) / 1000).toFixed(0)
+  return (((+play.state.value.endTime||+now.value) - +play.state.value.startTime) / 1000).toFixed(0)
 })
 
 let mineRest = computed(() => {
