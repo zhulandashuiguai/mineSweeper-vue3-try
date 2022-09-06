@@ -1,4 +1,5 @@
 import { BlockState } from '@/types'
+import { useNow } from '@vueuse/core'
 import { Ref } from 'vue'
 //格子的方位
 const directions = [
@@ -18,7 +19,7 @@ interface GameState {
   //炸弹数量
   mines: number,
   //时间
-  startTime: number,
+  startTime?: number,
   // 结束时间
   endTime?: number
 
@@ -45,8 +46,7 @@ export class GamePlay {
         mineGenerate: false,
         blockBoard: Array.from({ length: this.height }, (_, y) =>
           Array.from({ length: this.width }, (_, x): BlockState => ({ x, y, adjacentMines: 0, revealed: false }))),
-        mines: this.mines,
-        startTime: Date.now()
+        mines: this.mines
       }
   }
   get blockBoard() {
@@ -125,6 +125,8 @@ export class GamePlay {
       // 生成炸弹
       this.generateMines(this.blockBoard, item)
       this.state.value.mineGenerate = true
+      this.state.value.startTime = Date.now()
+
     }
     this.expendZero(item)
     item.revealed = true

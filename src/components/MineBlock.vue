@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { BlockState } from '@/types'
-import { isDev } from '@/composables/index'
 defineProps<{ block: BlockState }>()
 
 // 数字颜色
@@ -46,7 +45,7 @@ function getGridClass(item: BlockState) {
 <template>
   <div :class="hoverClass(block)">
             <div class="grid" :style="getGridClass(block)" >
-          <template v-if="block.revealed || isDev" >
+          <template v-if="block.revealed" >
             <div v-if="block.mine" class="iconfont icon-baozha"></div>
             <div v-else>{{ block.adjacentMines }}</div>
           </template>

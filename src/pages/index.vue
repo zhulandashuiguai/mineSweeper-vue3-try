@@ -13,7 +13,7 @@ watchEffect(() => {
 
 let now = useNow()
 let time = computed(() => {
-  return (((+play.state.value.endTime||+now.value) - +play.state.value.startTime) / 1000).toFixed(0)
+  return (((+play.state.value.endTime||+now.value) - (+play.state.value.startTime||+now.value)) / 1000).toFixed(0)
 })
 
 let mineRest = computed(() => {
@@ -22,6 +22,7 @@ let mineRest = computed(() => {
   return mineCount
 })
 
+let openDrawer = ref(false)
 
 
 </script>
@@ -35,6 +36,7 @@ let mineRest = computed(() => {
     <button class="btn-in" @click="play.reset(9, 9, 10)">简单</button>
     <button class="btn-in" @click="play.reset(16, 16, 40)">中等</button>
     <button class="btn-in" @click="play.reset(30, 16, 99)">较难</button>
+    <button @click="openDrawer=!openDrawer" >游戏规则</button>
   </div>
   <div class="middle">
     <div class="mid"><div class="iconfont icon-line_jishiqi"></div> &nbsp;{{ time }}</div>
@@ -49,6 +51,7 @@ let mineRest = computed(() => {
         </div>
   </div>  
   <confetti :passed="play.state.value.gameState == 'win' ? true : false"></confetti>
+  <Drawer :drawerVisible="openDrawer"></Drawer>
 </template>
 <style scoped lang="less">
 .horizon {
