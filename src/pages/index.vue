@@ -29,7 +29,6 @@ let openDrawer = ref(false)
 <template>
   <h3>扫雷</h3> 
   <div> 
-    
   <div class="btn">
     <!-- <button class="btn-dev btn-in" @click="toggleDev()">{{ isDev }}</button> -->
     <button class="btn-new btn-in" @click="play.reset()">新游戏</button>
